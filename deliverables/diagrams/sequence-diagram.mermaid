@@ -1,0 +1,99 @@
+%%{init: {'theme':'base', 'themeVariables': { 'primaryColor':'#ffcccc','secondaryColor':'#ffffcc','tertiaryColor':'#ccffcc'}} }%%
+---
+title: 会议创建流程
+---
+sequenceDiagram
+    actor User
+    participant Page as MeetingNewPage
+    participant Form as MeetingForm
+    participant Store as meetingStore
+    participant Service as meetingService
+    participant Storage as localStorage
+
+    User->>Page: 点击"创建会议"
+    Page->>Form: 渲染空白表单
+    User->>Form: 填写标题、时间、参会人、议题
+    Form->>Form: 验证表单数据
+    User->>Form: 点击"保存会议"
+    Form->>Store: createMeeting(meetingData)
+    Store->>Service: create(meeting)
+    Service->>Service: 生成唯一 ID
+    Service->>Storage: setItem('meetings', [...])
+    Storage-->>Service: 存储成功
+    Service-->>Store: 返回新会议对象
+    Store-->>Page: 更新 meetings 列表
+    Page->>User: 跳转至 /meetings/:id
+
+---
+
+%%{init: {'theme':'base', 'themeVariables': { 'primaryColor':'#ccffcc','secondaryColor':'#ccccff'}} }%%
+---
+title: AI 纪要生成流程（模拟）
+---
+sequenceDiagram
+    actor User
+    participant Page as MeetingDetailPage
+    participant Button as MinutesGenerator
+    participant AI as aiService.mock
+    participant Store as meetingStore
+    participant Service as minutesService
+    participant Storage as localStorage
+
+    User->>Page: 查看已结束会议详情
+    Page->>Button: 显示"生成纪要"按钮
+    User->>Button: 点击"生成纪要"
+    Button->>Button: 显示加载动画
+    Button->>AI: generateMinutes(meetingId, transcripts)
+    AI->>AI: 模拟延迟（1.5秒）
+    AI->>AI: 基于模板生成摘要
+    AI->>AI: 提取关键决策（模拟）
+    AI->>AI: 识别争议点（模拟）
+    AI->>AI: 生成发言统计（模拟）
+    AI-->>Button: 返回 MeetingMinutes 对象
+    Button->>Service: saveMinutes(minutes)
+    Service->>Storage: 更新会议数据
+    Service-->>Store: 更新当前会议
+    Store-->>Page: 重新渲染纪要 Tab
+    Page->>User: 显示结构化纪要
+
+---
+
+%%{init: {'theme':'base', 'themeVariables': { 'primaryColor':'#ccccff','secondaryColor':'#ffccff'}} }%%
+---
+title: 行动项追踪流程
+---
+sequenceDiagram
+    actor User
+    participant Page as ActionItemsPage
+    participant Board as ActionItemBoard
+    participant Column as ActionItemColumn
+    participant Card as ActionItemCard
+    participant Store as actionItemStore
+    participant Service as actionItemService
+    participant Storage as localStorage
+
+    User->>Page: 访问 /action-items
+    Page->>Board: 渲染三列看板
+    Board->>Service: getActionItems(filters)
+    Service->>Storage: getItem('actionItems')
+    Storage-->>Service: 返回所有行动项
+    Service-->>Board: 返回按状态分组的行动项
+    Board->>Column: 渲染每列卡片
+    
+    User->>Card: 拖拽卡片到"进行中"
+    Card->>Board: onDragEnd(event)
+    Board->>Store: updateActionItemStatus(id, 'in-progress')
+    Store->>Service: update(actionItem)
+    Service->>Storage: setItem('actionItems', [...])
+    Storage-->>Service: 更新成功
+    Service-->>Store: 返回更新后对象
+    Store-->>Board: 重新渲染看板
+    
+    User->>Card: 点击卡片展开详情
+    Card->>Card: 显示编辑表单
+    User->>Card: 修改截止日期、添加备注
+    Card->>Store: updateActionItem(id, updates)
+    Store->>Service: update(actionItem)
+    Service->>Storage: 持久化
+    Storage-->>Card: 更新成功
+    Card->>User: 显示"已保存"提示

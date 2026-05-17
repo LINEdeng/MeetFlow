@@ -1,0 +1,123 @@
+classDiagram
+    class Meeting {
+        +string id
+        +string title
+        +Date startTime
+        +Date endTime
+        +string description
+        +Participant[] participants
+        +string[] tags
+        +MeetingStatus status
+        +string calendarEventId
+        +AgendaItem[] agendaItems
+        +MeetingMinutes minutes
+        +ActionItem[] actionItems
+        +Date createdAt
+        +Date updatedAt
+        +getDuration() number
+        +getAgendaTotalTime() number
+        +isOverdue() boolean
+    }
+
+    class Participant {
+        +string id
+        +string name
+        +string email
+        +string avatarUrl
+    }
+
+    class AgendaItem {
+        +string id
+        +string title
+        +string description
+        +number estimatedMinutes
+        +string ownerId
+        +number order
+        +boolean isCompleted
+        +Date createdAt
+    }
+
+    class MeetingMinutes {
+        +string id
+        +string meetingId
+        +string summary
+        +KeyDecision[] keyDecisions
+        +ControversyPoint[] controversies
+        +TranscriptSegment[] transcripts
+        +SpeakingStat[] speakingStats
+        +Date generatedAt
+        +boolean isEdited
+        +generateSummary() string
+        +extractActionItems() ActionItem[]
+    }
+
+    class KeyDecision {
+        +string id
+        +string content
+        +string decidedBy
+        +Date timestamp
+    }
+
+    class ControversyPoint {
+        +string id
+        +string content
+        +string[] relatedParticipants
+        +string status
+    }
+
+    class TranscriptSegment {
+        +string id
+        +string speakerId
+        +string speakerName
+        +string text
+        +number startTime
+        +number endTime
+        +number confidence
+    }
+
+    class SpeakingStat {
+        +string speakerId
+        +string speakerName
+        +number percentage
+        +number durationSeconds
+    }
+
+    class ActionItem {
+        +string id
+        +string meetingId
+        +string description
+        +string ownerId
+        +ActionItemStatus status
+        +Date dueDate
+        +Date completedAt
+        +string sourceMeetingTitle
+        +string notes
+        +boolean isOverdue() boolean
+        +markComplete() void
+    }
+
+    class User {
+        +string id
+        +string name
+        +string email
+        +string avatarUrl
+        +string[] calendarIds
+        +NotificationPreference notificationPrefs
+    }
+
+    class NotificationPreference {
+        +boolean beforeMeeting
+        +number reminderMinutesBefore
+        +boolean emailNotifications
+    }
+
+    Meeting "1" *-- "0..*" AgendaItem : has
+    Meeting "1" *-- "0..1" MeetingMinutes : has
+    Meeting "1" *-- "0..*" ActionItem : has
+    Meeting "1" *-- "1..*" Participant : has
+    MeetingMinutes "1" *-- "0..*" KeyDecision : contains
+    MeetingMinutes "1" *-- "0..*" ControversyPoint : contains
+    MeetingMinutes "1" *-- "0..*" TranscriptSegment : contains
+    MeetingMinutes "1" *-- "0..*" SpeakingStat : contains
+    ActionItem "1" --> "0..1" Meeting : source meeting
+    Participant "1" --> "0..*" ActionItem : owns
