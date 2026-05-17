@@ -114,7 +114,7 @@ MeetFlow 是一款轻量级、平台无关的网页端会议助手，聚焦于**
 
 ```bash
 # 1. 进入项目目录
-cd meetflow
+cd MeetFlow-main
 
 # 2. 安装依赖
 npm install
